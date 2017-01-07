@@ -4,6 +4,7 @@ import random
 from PIL import Image
 import numpy
 import sys
+import time
 
 # image = ndimage.imread("/Users/ahmetkucuk/Documents/Developer/python/patch-extractor/resource/img/image.jpg")
 
@@ -24,21 +25,19 @@ def extract_patches(img_file, patient_id, output_class_dir, n_of_image_per_file,
         random_x = random.randrange(image.shape[0] - (patch_size + 100)) + 50
         random_y = random.randrange(image.shape[1] - (patch_size + 100)) + 50
 
-        image_out_file = output_class_dir + patient_id + "_" + str(i) + ".png"
+        image_out_file = output_class_dir + patient_id + "_" + str(i) + ".jpg"
         region = image[random_x:random_x + patch_size, random_y:random_y + patch_size]
         misc.imsave(image_out_file, region)
 
 
-def find_files_call_extractor(class_name, output_dir, input_dir):
-    if not (os.path.isdir(output_dir + class_name)):
-        os.makedirs(output_dir + class_name)
-
+def find_files(class_name, output_dir, input_dir):
+    print(input_dir + class_name)
     for root, dirs, files in os.walk(input_dir + class_name):
 
         patients = []
 
         for f in files:
-            if f.endswith("-0.tif"):
+            if f.endswith("-0.tif") & ("_" in str(f)):
                 full_path = input_dir + class_name + "/" + f
                 patients.append((f[:-4], full_path))
         random.shuffle(patients)
@@ -54,13 +53,13 @@ def bootstrap632(l_patients):
 
     selected_indexes = [True for i in xrange(n_samples)]
     for i in range(n_samples):
-        index = random.randint(0, n_samples)
+        index = random.randint(0, n_samples-1)
         list_of_train.append(l_patients[index])
         selected_indexes[index] = False
 
     for i in range(n_samples):
         if selected_indexes[i]:
-            list_of_validation.append(i)
+            list_of_validation.append(l_patients[i])
     return list_of_train, list_of_validation
 
 
@@ -80,16 +79,26 @@ def main(args):
     input_dir = root_dir + args[2]
     n_of_image_per_file = int(args[3])
     patch_size = int(args[4])
-
-    for c in classes:
-        train, test = bootstrap632(find_files_call_extractor(class_name=c, output_dir=output_dir, input_dir=input_dir))
-        print("length of train: " + str(len(train)))
-        print("length of test: " + str(len(test)))
-        print(train)
-        print(test)
-        for i in range(len(train)):
-            extract_patches(train[i][1], train[i][0], output_dir + "/train/" + c + "/", n_of_image_per_file, patch_size)
-            extract_patches(test[i][1], test[i][0], output_dir + "/test/" + c + "/", n_of_image_per_file, patch_size)
+    random.seed(time.time())
+    with open("metadata.txt", "w") as f_metadata:
+	    for c in classes:
+		if not (os.path.isdir(output_dir + "train/" + c)):
+        		os.makedirs(output_dir + "train/" +  c)
+        		os.makedirs(output_dir + "test/" +  c)
+    
+		test = []
+		train = []
+		while len(test) == 0:
+       	 		train, test = bootstrap632(find_files(class_name=c, output_dir=output_dir, input_dir=input_dir))
+		f_metadata.write("Class: " + c + "\n")
+		selected_train = map(lambda i: i[0], train)
+		selected_test = map(lambda i: i[0], test)
+		f_metadata.write("Selected Files For Train: " + str(selected_train) + "\n")
+		f_metadata.write("Selected Files For Test: " + str(selected_test) + "\n")
+        	for i in range(len(train)):
+            		extract_patches(train[i][1], train[i][0], output_dir + "train/" + c + "/", n_of_image_per_file, patch_size)
+		for i in range(len(test)):
+            		extract_patches(test[i][1], test[i][0], output_dir + "test/" + c + "/", n_of_image_per_file, patch_size)
 
 
 if __name__ == '__main__':
