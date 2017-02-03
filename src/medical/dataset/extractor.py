@@ -16,11 +16,9 @@ classes = ["OII", "OIII", "AII", "AIII", "OAII", "OAIII", "GBM", "GBMII"]
 
 
 def extract_patches(img_file, patient_id, output_class_dir, n_of_image_per_file, patch_size, index):
-	print("Before Read " + img_file)
 	image = Image.open(img_file)
 	image = numpy.array(image)
 
-	print(image.shape)
 	for i in range(n_of_image_per_file):
 		random_x = random.randrange(image.shape[0] - (patch_size + 100)) + 50
 		random_y = random.randrange(image.shape[1] - (patch_size + 100)) + 50
@@ -103,8 +101,8 @@ def main(args):
 			f_metadata.write("Class: " + c + "\n")
 			selected_train = map(lambda i: i[0], train)
 			selected_test = map(lambda i: i[0], test)
-			f_metadata.write("Selected Files For Train: " + str(selected_train) + "\n")
-			f_metadata.write("Selected Files For Test: " + str(selected_test) + "\n")
+			f_metadata.write("Selected Files For Train (" + str(len(train)) + "): " + str(selected_train) + "\n")
+			f_metadata.write("Selected Files For Test (" + str(len(test)) + "): " + str(selected_test) + "\n")
 			for i in range(len(train)):
 				extract_patches(train[i][1], train[i][0], output_dir + "train/" + c + "/", n_of_image_per_file,
 								patch_size, "train" + str(i))
