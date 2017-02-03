@@ -101,6 +101,10 @@ def main(args):
 			f_metadata.write("Class: " + c + "\n")
 			selected_train = map(lambda i: i[0], train)
 			selected_test = map(lambda i: i[0], test)
+
+			print("Selected Files For Train (" + str(len(train)) + "): " + str(selected_train) + "\n")
+			print("Selected Files For Test (" + str(len(test)) + "): " + str(selected_test) + "\n")
+
 			f_metadata.write("Selected Files For Train (" + str(len(train)) + "): " + str(selected_train) + "\n")
 			f_metadata.write("Selected Files For Test (" + str(len(test)) + "): " + str(selected_test) + "\n")
 			for i in range(len(train)):
