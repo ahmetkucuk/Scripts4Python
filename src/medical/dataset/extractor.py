@@ -11,7 +11,7 @@ import time
 # i = image[0:25, 0:25]
 # misc.imsave('/Users/ahmetkucuk/Documents/Developer/python/patch-extractor/resource/img/image_cut.jpg', i)
 # print(i)
-random.seed(100)
+#random.seed(100)
 
 classes = ["OII", "OIII", "AII", "AIII", "OAII", "OAIII", "GBM", "GBMII"]
 
