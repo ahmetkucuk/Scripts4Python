@@ -62,6 +62,16 @@ def bootstrap632(l_patients):
 	return list_of_train, list_of_validation
 
 
+def oversample(files):
+
+	random.shuffle(files)
+	n_files = len(files)
+	while len(files) < 43:
+		index = random.randint(0, n_files - 1)
+		files.append(files[index])
+	random.shuffle(files)
+	return files
+
 '''
 	Sample run command:
 
@@ -91,11 +101,7 @@ def main(args):
 			test = []
 			train = []
 			files = find_files(class_name=c, input_dir=input_dir)
-			random.shuffle(files)
-			while len(files) < 43:
-				index = random.randint(0, len(files) - 1)
-				files.append(files[index])
-				random.shuffle(files)
+			files = oversample(files)
 
 			while len(test) == 0:
 				train, test = bootstrap632(files)
