@@ -48,17 +48,17 @@ def find_files(class_name, input_dir):
 def bootstrap632(l_patients):
 	list_of_train = []
 	list_of_validation = []
+	train_set = set()
 
 	n_samples = len(l_patients)
 
-	selected_indexes = [True for i in xrange(n_samples)]
 	for i in range(n_samples):
 		index = random.randint(0, n_samples - 1)
-		list_of_train.append(l_patients[index])
-		selected_indexes[index] = False
+		list_of_train.append()
+		train_set.add(l_patients[index])
 
 	for i in range(n_samples):
-		if selected_indexes[i]:
+		if not (l_patients[i] in train_set):
 			list_of_validation.append(l_patients[i])
 	return list_of_train, list_of_validation
 
@@ -74,6 +74,7 @@ n extractor.py /home/ahmet/workspace/medical-image-extractor/ data/undersampled-
 def main(args):
 	if len(args) < 5:
 		print("CommandLine Args: root_dir, output_dir, input_dir, n_of_image_per_file, patch_size")
+		exit(0)
 
 	root_dir = args[0]
 	output_dir = root_dir + args[1]
@@ -91,7 +92,9 @@ def main(args):
 			train = []
 			files = find_files(class_name=c, input_dir=input_dir)
 			random.shuffle(files)
-			files = files[:3]
+			while len(files) < 43:
+				files.append(files[0])
+				random.shuffle(files)
 
 			while len(test) == 0:
 				train, test = bootstrap632(files)
