@@ -63,11 +63,10 @@ def bootstrap632(l_patients):
 	return list_of_train, list_of_validation
 
 
-def oversample(files):
-
+def oversample(files, size):
 	random.shuffle(files)
 	n_files = len(files)
-	while len(files) < 43:
+	while len(files) < size:
 		index = random.randint(0, n_files - 1)
 		files.append(files[index])
 	random.shuffle(files)
@@ -93,7 +92,13 @@ def main(args):
 	patch_size = int(args[4])
 	random.seed(0)
 	os.makedirs(output_dir)
+
+	samples = {}
+
 	with open(output_dir + "metadata.txt", "w") as f_metadata:
+
+		max_n_train = 0
+		max_n_test = 0
 		for c in classes:
 			if not (os.path.isdir(output_dir + "train/" + c)):
 				os.makedirs(output_dir + "train/" + c)
@@ -102,10 +107,21 @@ def main(args):
 			test = []
 			train = []
 			files = find_files(class_name=c, input_dir=input_dir)
-			files = oversample(files)
+			#files = oversample(files)
 
 			while len(test) == 0:
 				train, test = bootstrap632(files)
+			samples[c] = (train, test)
+			max_n_train = max(len(train), max_n_train)
+			max_n_test = max(len(test), max_n_test)
+
+		train = []
+		test = []
+		for c in samples:
+			train, test = samples[c]
+			n_of_image_per_train_file = 5000 / len(train)
+			n_of_image_per_test_file = 3000 / len(test)
+
 			f_metadata.write("Class: " + c + "\n")
 			selected_train = map(lambda i: i[0], train)
 			selected_test = map(lambda i: i[0], test)
@@ -115,11 +131,13 @@ def main(args):
 
 			f_metadata.write("Selected Files For Train (" + str(len(train)) + "): " + str(selected_train) + "\n")
 			f_metadata.write("Selected Files For Test (" + str(len(test)) + "): " + str(selected_test) + "\n")
+
 			for i in range(len(train)):
-				extract_patches(train[i][1], train[i][0], output_dir + "train/" + c + "/", n_of_image_per_file,
+				extract_patches(train[i][1], train[i][0], output_dir + "train/" + c + "/", n_of_image_per_train_file,
 								patch_size, "train" + str(i))
+
 			for i in range(len(test)):
-				extract_patches(test[i][1], test[i][0], output_dir + "test/" + c + "/", n_of_image_per_file, patch_size, "test" + str(i))
+				extract_patches(test[i][1], test[i][0], output_dir + "test/" + c + "/", n_of_image_per_test_file, patch_size, "test" + str(i))
 
 
 if __name__ == '__main__':
