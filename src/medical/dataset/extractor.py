@@ -93,7 +93,8 @@ def main(args):
 			files = find_files(class_name=c, input_dir=input_dir)
 			random.shuffle(files)
 			while len(files) < 43:
-				files.append(files[0])
+				index = random.randint(0, len(files) - 1)
+				files.append(files[index])
 				random.shuffle(files)
 
 			while len(test) == 0:
