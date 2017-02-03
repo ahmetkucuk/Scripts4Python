@@ -82,7 +82,7 @@ def main(args):
 	n_of_image_per_file = int(args[3])
 	patch_size = int(args[4])
 	random.seed(0)
-	with open("metadata.txt", "w") as f_metadata:
+	with open(output_dir + "metadata.txt", "w") as f_metadata:
 		for c in classes:
 			if not (os.path.isdir(output_dir + "train/" + c)):
 				os.makedirs(output_dir + "train/" + c)
