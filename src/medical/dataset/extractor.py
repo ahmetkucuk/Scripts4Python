@@ -15,7 +15,7 @@ import time
 classes = ["OII", "OIII", "AII", "AIII", "OAII", "OAIII", "GBM", "GBMII"]
 
 
-def extract_patches(img_file, patient_id, output_class_dir, n_of_image_per_file, patch_size):
+def extract_patches(img_file, patient_id, output_class_dir, n_of_image_per_file, patch_size, index):
 	print("Before Read " + img_file)
 	image = Image.open(img_file)
 	image = numpy.array(image)
@@ -25,7 +25,7 @@ def extract_patches(img_file, patient_id, output_class_dir, n_of_image_per_file,
 		random_x = random.randrange(image.shape[0] - (patch_size + 100)) + 50
 		random_y = random.randrange(image.shape[1] - (patch_size + 100)) + 50
 
-		image_out_file = output_class_dir + patient_id + "_" + str(i) + ".jpg"
+		image_out_file = output_class_dir + patient_id + "_" + index + "_" + str(i) + ".jpg"
 		region = image[random_x:random_x + patch_size, random_y:random_y + patch_size]
 		misc.imsave(image_out_file, region)
 
@@ -65,8 +65,9 @@ def bootstrap632(l_patients):
 
 '''
 	Sample run command:
-	python extractor.py /home/ahmet/workspace/medical-image-extractor/ data/patches-256-5000-val/ data/s2_converted/ 625 256
 
+	python extractor.py /home/ahmet/workspace/medical-image-extractor/ data/patches-256-5000-val/ data/s2_converted/ 625 256
+n extractor.py /home/ahmet/workspace/medical-image-extractor/ data/undersampled-bootstrap-32-1000/ data/tif_merged_converted/scan_merged_converted/ 1000 32
 '''
 
 
@@ -89,7 +90,7 @@ def main(args):
 			test = []
 			train = []
 			files = find_files(class_name=c, input_dir=input_dir)
-			files = random.shuffle(files)
+			random.shuffle(files)
 			files = files[:3]
 
 			while len(test) == 0:
@@ -101,9 +102,9 @@ def main(args):
 			f_metadata.write("Selected Files For Test: " + str(selected_test) + "\n")
 			for i in range(len(train)):
 				extract_patches(train[i][1], train[i][0], output_dir + "train/" + c + "/", n_of_image_per_file,
-								patch_size)
+								patch_size, "train" + str(i))
 			for i in range(len(test)):
-				extract_patches(test[i][1], test[i][0], output_dir + "test/" + c + "/", n_of_image_per_file, patch_size)
+				extract_patches(test[i][1], test[i][0], output_dir + "test/" + c + "/", n_of_image_per_file, patch_size, "test" + str(i))
 
 
 if __name__ == '__main__':
